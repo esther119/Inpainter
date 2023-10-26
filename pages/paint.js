@@ -16,14 +16,49 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [maskImage, setMaskImage] = useState(null);
   const [userUploadedImage, setUserUploadedImage] = useState(null);
+  const [textPrediction, setTextPrediction] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('handle submit function called')
 
     const prevPrediction = predictions[predictions.length - 1];
     const prevPredictionOutput = prevPrediction?.output
       ? prevPrediction.output[prevPrediction.output.length - 1]
       : null;
+
+    
+    const textResponse = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt: e.target.prompt.value }), // Empty string since content is fetched within the API
+    });
+    console.log('textResponse', textResponse)
+    if (textResponse.ok) {
+      if (textResponse.body) {
+        const reader = textResponse.body.getReader();
+        let text = "";
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            break;
+          }
+          console.log('value', value)
+          // Convert the Uint8Array to a string and append it to the existing text
+          text += new TextDecoder("utf-8").decode(value);
+          setTextPrediction(text);
+          console.log('text', text)
+          console.log('text prediction', textPrediction)
+        }
+      } else {
+        const errorMessage = await textResponse.text();
+        console.error("Failed to fetch feedback:", errorMessage);
+      }
+  };
+
 
     const body = {
       prompt: e.target.prompt.value,
@@ -107,9 +142,9 @@ export default function Home() {
         </div>
 
         <div className="max-w-[512px] mx-auto">
-          <PromptForm onSubmit={handleSubmit} />
+          <PromptForm submitData={handleSubmit} textPrediction = {textPrediction}/>
 
-          <div className="text-center font-comic">
+          <div className="text-center font-comicpainting of fruit on a table in the style of Raimonds Staprans">
             {((predictions.length > 0 &&
               predictions[predictions.length - 1].output) ||
               maskImage ||
