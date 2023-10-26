@@ -1,14 +1,9 @@
 import { useState } from "react";
 
 const samplePrompts = [
-  "a gentleman otter in a 19th century portrait",
-  "bowl of ramen in the style of a comic book",
-  "flower field drawn by Jean-Jacques Sempé",
-  "illustration of a taxi cab in the style of r crumb",
-  "multicolor hyperspace",
-  "painting of fruit on a table in the style of Raimonds Staprans",
-  "pencil sketch of robots playing poker",
-  "photo of an astronaut riding a horse",
+  "How to find your future partner?",
+  "Is AI going to replace my job?",
+  "I love stick man so much",
 ];
 import sample from "lodash/sample";
 
@@ -21,21 +16,29 @@ export default function PromptForm(props) {
       onSubmit={props.onSubmit}
       className="py-5 animate-in fade-in duration-700"
     >
-      <div className="flex max-w-[512px]">
+      <div className="flex flex-col items-start max-w-[512px] font-comic"> 
+        {/* Added flex-col for column layout and items-start to align items to the start */}
+        <input
+          type="text"
+          placeholder="How does waitbutwhy think..."
+          className="block w-full mb-4 rounded-md font-comic" // added margin-bottom for spacing
+        />      
+      <div className="flex max-w-[512px] font-comic w-full">
         <input
           type="text"
           defaultValue={prompt}
           name="prompt"
-          placeholder="Enter a prompt..."
+          placeholder="Enter a topic..."
           className="block w-full flex-grow rounded-l-md"
         />
 
         <button
-          className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none"
+          className="bg-black text-white rounded-r-md text-small inline-block px-3 flex-none font-comic"
           type="submit"
         >
           Generate
         </button>
+      </div>
       </div>
     </form>
   );

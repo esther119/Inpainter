@@ -109,7 +109,7 @@ export default function Home() {
         <div className="max-w-[512px] mx-auto">
           <PromptForm onSubmit={handleSubmit} />
 
-          <div className="text-center">
+          <div className="text-center font-comic">
             {((predictions.length > 0 &&
               predictions[predictions.length - 1].output) ||
               maskImage ||

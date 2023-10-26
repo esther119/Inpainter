@@ -20,7 +20,7 @@ export default function Dropzone(props) {
       className="absolute z-50 flex w-full h-full text-gray-500 text-sm text-center cursor-pointer select-none w-full h-full"
       {...getRootProps()}
     >
-      <div className="m-auto">
+      <div className="m-auto font-comic">
         <input {...getInputProps()} />
         {isDragActive ? (
           <p>Drop the image here ...</p>

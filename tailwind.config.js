@@ -15,6 +15,9 @@ module.exports = {
         shade: "rgba(0, 0, 0, 0.45)",
         bgshade: "rgba(0, 0, 0, 0.05)",
       },
+      fontFamily: {
+        'comic': ['"Comic Sans MS"', 'cursive']
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

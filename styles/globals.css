@@ -9,6 +9,7 @@ input {
   /* @apply rounded-md; */
   @apply px-4;
   @apply py-2;
+  @apply font-comic;  
 }
 
 .border-hairline {
