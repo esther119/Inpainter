@@ -33,6 +33,7 @@ export default class Canvas extends React.Component {
 
     return (
       <div className="relative w-full aspect-square">
+        
         {/* PREDICTION IMAGES */}
 
         {!this.props.userUploadedImage &&

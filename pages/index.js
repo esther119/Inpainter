@@ -49,10 +49,8 @@ export default function About() {
         </li>
       </ol> */}
 
-      <Link href="/paint">
-        <a className="py-3 block text-center bg-black text-white rounded-md mt-10">
+      <Link href="/paint" className="py-3 block text-center bg-black text-white rounded-md mt-10">
           Start painting
-        </a>
       </Link>
     </div>
   );
