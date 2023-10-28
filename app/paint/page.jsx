@@ -32,7 +32,7 @@ export default function Home() {
       ? prevPrediction.output[prevPrediction.output.length - 1]
       : null;
     
-    // handleSubmit(e)
+    handleSubmit(e)
     
     // const textResponse = await fetch("/api/generate", {
     //   method: "POST",
@@ -150,7 +150,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-[512px] mx-auto">
-          <PromptForm submitData={handleSubmit} handleInputChange={handleInputChange} textPrediction={completion} input={input}/>
+          <PromptForm submitData={complexSubmit} handleInputChange={handleInputChange} textPrediction={completion} input={input}/>
 
           <div className="text-center font-comicpainting of fruit on a table in the style of Raimonds Staprans">
             {((predictions.length > 0 &&
