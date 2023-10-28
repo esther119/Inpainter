@@ -16,49 +16,16 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [maskImage, setMaskImage] = useState(null);
   const [userUploadedImage, setUserUploadedImage] = useState(null);
-  const [textPrediction, setTextPrediction] = useState('');
+  const [textPrediction, setTextPrediction] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('handle submit function called')
+    console.log("handle submit function called");
 
     const prevPrediction = predictions[predictions.length - 1];
     const prevPredictionOutput = prevPrediction?.output
       ? prevPrediction.output[prevPrediction.output.length - 1]
       : null;
-
-    
-    const textResponse = await fetch("/api/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt: e.target.prompt.value }), // Empty string since content is fetched within the API
-    });
-    console.log('textResponse', textResponse)
-    if (textResponse.ok) {
-      if (textResponse.body) {
-        const reader = textResponse.body.getReader();
-        let text = "";
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
-          }
-          console.log('value', value)
-          // Convert the Uint8Array to a string and append it to the existing text
-          text += new TextDecoder("utf-8").decode(value);
-          setTextPrediction(text);
-          console.log('text', text)
-          console.log('text prediction', textPrediction)
-        }
-      } else {
-        const errorMessage = await textResponse.text();
-        console.error("Failed to fetch feedback:", errorMessage);
-      }
-  };
-
 
     const body = {
       prompt: e.target.prompt.value,
@@ -71,37 +38,81 @@ export default function Home() {
       mask: maskImage,
     };
 
-    const response = await fetch("/api/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-    const prediction = await response.json();
+    const [textResponse, imageResponse] = await Promise.all([
+      genText(),
+      genImage(),
+    ]);
 
-    if (response.status !== 201) {
-      setError(prediction.detail);
-      return;
+    async function genText() {
+      console.log('generating text')
+      const stream = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: e.target.prompt.value }), // Empty string since content is fetched within the API
+      });
+      console.log("textResponse", stream);
+      if (stream.ok) {
+        if (stream.body) {
+          const reader = stream.body.getReader();
+          let text = "";
+          while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) {
+              break;
+            }
+            console.log("value", value);
+            // Convert the Uint8Array to a string and append it to the existing text
+            text += new TextDecoder("utf-8").decode(value);
+            setTextPrediction(text);
+            console.log("text", text);
+            console.log("text prediction", textPrediction);
+          }
+        } else {
+          const errorMessage = await textResponse.text();
+          console.error("Failed to fetch feedback:", errorMessage);
+        }
+      }
+      return textPrediction;
     }
-    setPredictions(predictions.concat([prediction]));
 
-    while (
-      prediction.status !== "succeeded" &&
-      prediction.status !== "failed"
-    ) {
-      await sleep(1000);
-      const response = await fetch("/api/predictions/" + prediction.id);
-      prediction = await response.json();
-      if (response.status !== 200) {
+    async function genImage() {
+      console.log('generating image')
+      const response = await fetch("/api/predictions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      let prediction = await response.json();
+
+      if (response.status !== 201) {
         setError(prediction.detail);
         return;
       }
       setPredictions(predictions.concat([prediction]));
 
-      if (prediction.status === "succeeded") {
-        setUserUploadedImage(null);
+      while (
+        prediction.status !== "succeeded" &&
+        prediction.status !== "failed"
+      ) {
+        await sleep(1000);
+        const response = await fetch("/api/predictions/" + prediction.id);
+        prediction = await response.json();
+        if (response.status !== 200) {
+          setError(prediction.detail);
+          return;
+        }
+        setPredictions(predictions.concat([prediction]));
+
+        if (prediction.status === "succeeded") {
+          setUserUploadedImage(null);
+        }
       }
+      return prediction;
     }
   };
 
@@ -142,7 +153,10 @@ export default function Home() {
         </div>
 
         <div className="max-w-[512px] mx-auto">
-          <PromptForm submitData={handleSubmit} textPrediction = {textPrediction}/>
+          <PromptForm
+            submitData={handleSubmit}
+            textPrediction={textPrediction}
+          />
 
           <div className="text-center font-comicpainting of fruit on a table in the style of Raimonds Staprans">
             {((predictions.length > 0 &&
@@ -156,21 +170,22 @@ export default function Home() {
             )}
 
             <Download predictions={predictions} />
-            <Link href="https://replicate.com/stability-ai/stable-diffusion">
-              <a target="_blank" className="lil-button">
-                <RocketIcon className="icon" />
-                Run with an API
-              </a>
+            <Link
+              href="https://replicate.com/stability-ai/stable-diffusion"
+              target="_blank"
+              className="lil-button"
+            >
+              <RocketIcon className="icon" />
+              Run with an API
             </Link>
-            <Link href="https://github.com/zeke/inpainter">
-              <a
-                className="lil-button"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <CodeIcon className="icon" />
-                View on GitHub
-              </a>
+            <Link
+              href="https://github.com/zeke/inpainter"
+              className="lil-button"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <CodeIcon className="icon" />
+              View on GitHub
             </Link>
           </div>
         </div>
